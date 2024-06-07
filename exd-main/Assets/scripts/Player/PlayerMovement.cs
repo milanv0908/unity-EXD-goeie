@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public float speed;
     public float timeout = 5f; // Time in seconds before stopping movement if no button press
+    public Animator animatorToPause; // Reference to the animator component to pause
     private SerialPort sp;
     private int currentDirection = 0; // Variable to keep track of the current direction
     private float lastButtonPressTime = 0f; // Time of the last button press
@@ -14,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
     {
         try
         {
-            sp = new SerialPort("COM7", 9600);
+            sp = new SerialPort("COM3", 9600);
             sp.Open();
             sp.ReadTimeout = 100; // Adjusting the read timeout to 100ms
             Debug.Log("Serial port opened successfully.");
@@ -39,6 +40,10 @@ public class PlayerMovement : MonoBehaviour
                     if (currentDirection != 0)
                     {
                         lastButtonPressTime = Time.time; // Update last button press time
+                        if (animatorToPause != null && !animatorToPause.GetCurrentAnimatorStateInfo(0).IsName("YourAnimationName"))
+                        {
+                            animatorToPause.Play("YourAnimationName"); // Play animation if not already playing
+                        }
                     }
                 }
             }
@@ -56,6 +61,17 @@ public class PlayerMovement : MonoBehaviour
         if (Time.time - lastButtonPressTime > timeout)
         {
             currentDirection = 0; // Stop movement if the button hasn't been pressed for 'timeout' seconds
+            if (animatorToPause != null && animatorToPause.GetCurrentAnimatorStateInfo(0).IsName("Move"))
+            {
+                animatorToPause.speed = 0f; // Pause animation if playing
+            }
+        }
+        else
+        {
+            if (animatorToPause != null && !animatorToPause.GetCurrentAnimatorStateInfo(0).IsName("Move"))
+            {
+                animatorToPause.speed = 1f; // Resume animation if paused
+            }
         }
 
         // Move the object based on the current direction
@@ -97,4 +113,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 }
+
+
 
