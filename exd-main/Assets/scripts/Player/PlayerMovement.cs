@@ -6,9 +6,9 @@ public class PlayerMovement : MonoBehaviour
 {
     public float speed;
     public float timeout = 5f; // Time in seconds before stopping movement if no button press
-    SerialPort sp;
-    int currentDirection = 0; // Variable to keep track of the current direction
-    float lastButtonPressTime = 0f; // Time of the last button press
+    private SerialPort sp;
+    private int currentDirection = 0; // Variable to keep track of the current direction
+    private float lastButtonPressTime = 0f; // Time of the last button press
 
     void Start()
     {
@@ -17,6 +17,7 @@ public class PlayerMovement : MonoBehaviour
             sp = new SerialPort("COM3", 9600);
             sp.Open();
             sp.ReadTimeout = 100; // Adjusting the read timeout to 100ms
+            Debug.Log("Serial port opened successfully.");
         }
         catch (Exception e)
         {
@@ -64,18 +65,27 @@ public class PlayerMovement : MonoBehaviour
     void MoveObject(int direction)
     {
         float amountToMove = speed * Time.deltaTime; // Calculate amount to move based on speed and time
+        Vector3 movement = Vector3.zero;
 
-        if (direction == 1) // Move up
+        switch (direction)
         {
-            Vector3 movement = Vector3.up * amountToMove; // Move up on the Y-axis
-            transform.Translate(movement, Space.World);
+            case 1: // Move up
+                movement = Vector3.up * amountToMove; // Move up on the Y-axis
+                break;
+            case 2: // Move down
+                movement = Vector3.down * amountToMove; // Move down on the Y-axis
+                break;
+            // Add other cases for different directions as needed
+            default:
+                // No movement for direction 0 or unknown direction
+                break;
         }
-        else if (direction == 2) // Move down (example)
+
+        if (movement != Vector3.zero)
         {
-            Vector3 movement = Vector3.down * amountToMove; // Move down on the Y-axis
             transform.Translate(movement, Space.World);
+            Debug.Log("Moving in direction: " + direction + " with movement: " + movement);
         }
-        // Add other directions as needed
     }
 
     void OnApplicationQuit()
@@ -83,6 +93,7 @@ public class PlayerMovement : MonoBehaviour
         if (sp != null && sp.IsOpen)
         {
             sp.Close();
+            Debug.Log("Serial port closed.");
         }
     }
 }
