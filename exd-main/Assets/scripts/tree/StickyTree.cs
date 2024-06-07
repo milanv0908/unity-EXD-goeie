@@ -29,9 +29,6 @@ public class StickyTree : MonoBehaviour
         if (other.gameObject == player)
         {
             Debug.Log("Player entered the trigger zone");
-            // Ensure the player stops being affected by physics
-            playerRb.isKinematic = true;
-
             // Attach the player to the object if not already attached
             if (fixedJoint == null)
             {
@@ -46,13 +43,12 @@ public class StickyTree : MonoBehaviour
         if (other.gameObject == player)
         {
             Debug.Log("Player exited the trigger zone");
-            // Detach the player and restore physics
+            // Detach the player
             if (fixedJoint != null)
             {
                 Destroy(fixedJoint);
                 fixedJoint = null;
             }
-            playerRb.isKinematic = false;
         }
     }
 }
