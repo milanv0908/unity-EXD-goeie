@@ -5,11 +5,13 @@ using System.IO.Ports;
 public class PlayerMovement : MonoBehaviour
 {
     public float speed;
-    public float timeout = 5f; // Time in seconds before stopping movement if no button press
+    public float minTimeout = 5f; // Minimum time in seconds before the next button press is allowed
+    public float maxTimeout = 10f; // Maximum time in seconds before the next button press is allowed
     public Animator animatorToPause; // Reference to the animator component to pause
     private SerialPort sp;
     private int currentDirection = 0; // Variable to keep track of the current direction
     private float lastButtonPressTime = 0f; // Time of the last button press
+    private bool isFirstPress = true; // Boolean to track the first button press
 
     void Start()
     {
@@ -37,12 +39,32 @@ public class PlayerMovement : MonoBehaviour
                     currentDirection = sp.ReadByte();
                     Debug.Log("Direction: " + currentDirection);
 
+                    float timeSinceLastPress = Time.time - lastButtonPressTime;
+
                     if (currentDirection != 0)
                     {
-                        lastButtonPressTime = Time.time; // Update last button press time
-                        if (animatorToPause != null && !animatorToPause.GetCurrentAnimatorStateInfo(0).IsName("YourAnimationName"))
+                        if (isFirstPress || (timeSinceLastPress >= minTimeout && timeSinceLastPress <= maxTimeout))
                         {
-                            animatorToPause.Play("YourAnimationName"); // Play animation if not already playing
+                            lastButtonPressTime = Time.time; // Update last button press time
+                            Debug.Log("Button pressed within the allowed time frame or first press.");
+
+                            if (animatorToPause != null && !animatorToPause.GetCurrentAnimatorStateInfo(0).IsName("YourAnimationName"))
+                            {
+                                animatorToPause.Play("YourAnimationName"); // Play animation if not already playing
+                                animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
+                                animatorToPause.speed = 1f; // Resume animation if paused
+                            }
+
+                            isFirstPress = false; // Mark that the first press has occurred
+                        }
+                        else
+                        {
+                            // Trigger the falling animation if button pressed too soon or too late
+                            Debug.Log("Button pressed too soon or too late, triggering falling animation.");
+                            if (animatorToPause != null)
+                            {
+                                animatorToPause.SetTrigger("falling");
+                            }
                         }
                     }
                 }
@@ -57,20 +79,13 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        // Check if the timeout has been exceeded
-        if (Time.time - lastButtonPressTime > timeout)
+        // Check if the time since the last button press has exceeded the maxTimeout
+        if (!isFirstPress && Time.time - lastButtonPressTime > maxTimeout)
         {
-            currentDirection = 0; // Stop movement if the button hasn't been pressed for 'timeout' seconds
-            if (animatorToPause != null && animatorToPause.GetCurrentAnimatorStateInfo(0).IsName("Move"))
+            Debug.Log("No button press detected within the allowed time frame, triggering falling animation.");
+            if (animatorToPause != null)
             {
-                animatorToPause.speed = 0f; // Pause animation if playing
-            }
-        }
-        else
-        {
-            if (animatorToPause != null && !animatorToPause.GetCurrentAnimatorStateInfo(0).IsName("Move"))
-            {
-                animatorToPause.speed = 1f; // Resume animation if paused
+                animatorToPause.SetTrigger("falling");
             }
         }
 
@@ -113,6 +128,8 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 }
+
+
 
 
 
