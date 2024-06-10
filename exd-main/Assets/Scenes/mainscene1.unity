@@ -8,8 +8,8 @@ OcclusionCullingSettings:
     smallestOccluder: 5
     smallestHole: 0.25
     backfaceThreshold: 100
-  m_SceneGUID: 00000000000000000000000000000000
-  m_OcclusionCullingData: {fileID: 0}
+  m_SceneGUID: 12020b55f8a72524889e11030507b17e
+  m_OcclusionCullingData: {fileID: 36300000, guid: e7cb3029aea912e46a53d038be2dda4e, type: 2}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -1410,6 +1410,10 @@ PrefabInstance:
     - target: {fileID: 7696548424635294051, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 9014170783809206330, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+      propertyPath: far clip plane
+      value: 2000
       objectReference: {fileID: 0}
     - target: {fileID: 9014170783809206330, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
       propertyPath: m_RenderingPath
@@ -3331,7 +3335,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1793240514
 Transform:
   m_ObjectHideFlags: 0
@@ -3751,6 +3755,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 6a4e736abb97d2948b18b234374b91d5, type: 3}
       propertyPath: m_Name
       value: BCY_JA02_AcerNikoense_8
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6a4e736abb97d2948b18b234374b91d5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5392227951958272011, guid: 6a4e736abb97d2948b18b234374b91d5, type: 3}
       propertyPath: m_CastShadows
