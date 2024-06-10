@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.IO.Ports;
+using System.Collections;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -10,8 +11,11 @@ public class PlayerMovement : MonoBehaviour
     public Animator animatorToPause; // Reference to the animator component to pause
     private SerialPort sp;
     private int currentDirection = 0; // Variable to keep track of the current direction
-    private float lastButtonPressTime = 0f; // Time of the last button press
-    private bool isFirstPress = true; // Boolean to track the first button press
+    private float lastButtonPressTime = -1f; // Time of the last button press, initialized to -1 to indicate no presses yet
+    private float timeSinceLastPress = 0f; // Time since the last button press
+    public bool isFirstPress = true; // Boolean to track the first button press
+    public int buttonPressCount = 0;
+    private float time2; // Time of the previous button press
 
     void Start()
     {
@@ -28,96 +32,96 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void Update()
+   void Update()
+{
+     if (sp != null && sp.IsOpen)
     {
-        if (sp != null && sp.IsOpen)
+        try
         {
-            try
+            string serialData = sp.ReadExisting(); // Read all available bytes as a string
+            if (!string.IsNullOrEmpty(serialData))
             {
-                if (sp.BytesToRead > 0) // Check if there are bytes to read
-                {
-                    currentDirection = sp.ReadByte();
-                    Debug.Log("Direction: " + currentDirection);
-
-                    float timeSinceLastPress = Time.time - lastButtonPressTime;
-
-                    if (currentDirection != 0)
-                    {
-                        if (isFirstPress || (timeSinceLastPress >= minTimeout && timeSinceLastPress <= maxTimeout))
-                        {
-                            lastButtonPressTime = Time.time; // Update last button press time
-                            Debug.Log("Button pressed within the allowed time frame or first press.");
-
-                            if (animatorToPause != null && !animatorToPause.GetCurrentAnimatorStateInfo(0).IsName("YourAnimationName"))
-                            {
-                                animatorToPause.Play("YourAnimationName"); // Play animation if not already playing
-                                animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
-                                animatorToPause.speed = 1f; // Resume animation if paused
-                            }
-
-                            isFirstPress = false; // Mark that the first press has occurred
-                        }
-                        else
-                        {
-                            // Trigger the falling animation if button pressed too soon or too late
-                            Debug.Log("Button pressed too soon or too late, triggering falling animation.");
-                            if (animatorToPause != null)
-                            {
-                                animatorToPause.SetTrigger("falling");
-                            }
-                        }
-                    }
-                }
-            }
-            catch (TimeoutException)
-            {
-                // Handle timeout - it is expected to occur frequently
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Error reading from serial port: " + e.Message);
+                currentDirection = Convert.ToInt32(serialData[0]); // Extract the first byte
+                float previousTime2 = time2; // Store the previous value of time2
+                time2 = Time.time; // Update time2 with the current time
+                timeSinceLastPress = time2 - previousTime2; // Calculate time since last button press
+                buttonPressCount++;
+                Debug.Log(timeSinceLastPress);
             }
         }
-
-        // Check if the time since the last button press has exceeded the maxTimeout
-        if (!isFirstPress && Time.time - lastButtonPressTime > maxTimeout)
+        catch (TimeoutException)
         {
-            Debug.Log("No button press detected within the allowed time frame, triggering falling animation.");
+            // Handle timeout - it is expected to occur frequently
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error reading from serial port: " + e.Message);
+        }
+    }
+
+    if (timeSinceLastPress < 0.1f)
+        {
+            Debug.Log("Ignoring button press due to quick succession.");
+            return; // Exit the Update method to ignore the button press
+        }
+
+    // Check for button press
+    if (currentDirection != 0)
+    {
+        if (isFirstPress)
+        {
+            lastButtonPressTime = Time.time; // Update last button press time
+            Debug.Log("First button press detected.");
+            StartCoroutine(First());
+
             if (animatorToPause != null)
             {
-                animatorToPause.SetTrigger("falling");
+                animatorToPause.Play("YourAnimationName"); // Play animation if not already playing
+                Debug.Log("First button press - animation started.");
+            }
+            return; // Exit the Update method to prevent further checks on the first press
+        }
+
+        if (timeSinceLastPress >= minTimeout && timeSinceLastPress <= maxTimeout)
+        {
+            lastButtonPressTime = Time.time; // Update last button press time
+            Debug.Log("Button pressed within the allowed time frame.");
+            Debug.Log("Button is pressable and won't trigger the falling animation.");
+
+            if (animatorToPause != null)
+            {
+                animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
+                animatorToPause.speed = 1f; // Resume animation if paused
+                Debug.Log("Button pressed within allowed time frame - animation resumed.");
             }
         }
+        else if (timeSinceLastPress < minTimeout || timeSinceLastPress > maxTimeout)
+        {
+            if (buttonPressCount >= 2)
+            {
+                Debug.Log("Button pressed too soon or too late, triggering falling animation.");
 
-        // Move the object based on the current direction
-        MoveObject(currentDirection);
+                if (animatorToPause != null)
+                {
+                    animatorToPause.SetTrigger("falling");
+                }
+            }
+        }
     }
 
-    void MoveObject(int direction)
+    // Check if the time since the last button press has exceeded the maxTimeout
+    if (!isFirstPress && lastButtonPressTime >= 0 && Time.time - lastButtonPressTime > maxTimeout)
     {
-        float amountToMove = speed * Time.deltaTime; // Calculate amount to move based on speed and time
-        Vector3 movement = Vector3.zero;
-
-        switch (direction)
+        Debug.Log("No button press detected within the allowed time frame, triggering falling animation.");
+        if (animatorToPause != null)
         {
-            case 1: // Move up
-                movement = Vector3.up * amountToMove; // Move up on the Y-axis
-                break;
-            case 2: // Move down
-                movement = Vector3.down * amountToMove; // Move down on the Y-axis
-                break;
-            // Add other cases for different directions as needed
-            default:
-                // No movement for direction 0 or unknown direction
-                break;
+            animatorToPause.SetTrigger("falling");
         }
-
-        if (movement != Vector3.zero)
-        {
-            transform.Translate(movement, Space.World);
-            Debug.Log("Moving in direction: " + direction + " with movement: " + movement);
-        }
+        lastButtonPressTime = Time.time; // Reset the timer to avoid continuous triggering
     }
+
+}
+
 
     void OnApplicationQuit()
     {
@@ -127,9 +131,24 @@ public class PlayerMovement : MonoBehaviour
             Debug.Log("Serial port closed.");
         }
     }
+
+    IEnumerator First()
+    {
+        yield return new WaitForSeconds(1);
+        isFirstPress = false;
+
+        // Reset timeSinceLastPress to 0 after the first button press
+        timeSinceLastPress = 0f;
+    }
 }
 
 
 
+//time.time = lastbuttonpress 1
+//time.time2 = lastbuttonpress2 - lastbyttonpress1
+//timeSinceLastPress = time.time2 - time.time
+//timeSinceLastPress = time.time - time.time = 0
 
-
+//b1press = time.time 
+//b2press = time.time2
+//b3press = time.time 2 & b2press=time.time
