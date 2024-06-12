@@ -6,7 +6,7 @@ using System.Collections;
 public class PlayerMovement : MonoBehaviour
 {
     public float speed;
-    public float minTimeout = 5f; // Minimum time in seconds before the next button press is allowed
+    public float minTimeout = 3f; // Minimum time in seconds before the next button press is allowed
     public float maxTimeout = 10f; // Maximum time in seconds before the next button press is allowed
     public Animator animatorToPause; // Reference to the animator component to pause
     private SerialPort sp;
@@ -21,7 +21,7 @@ public class PlayerMovement : MonoBehaviour
     {
         try
         {
-            sp = new SerialPort("COM3", 9600);
+            sp = new SerialPort("COM7", 9600);
             sp.Open();
             sp.ReadTimeout = 100; // Adjusting the read timeout to 100ms
             Debug.Log("Serial port opened successfully.");
@@ -61,7 +61,7 @@ public class PlayerMovement : MonoBehaviour
 
     if (timeSinceLastPress < 0.1f)
         {
-            Debug.Log("Ignoring button press due to quick succession.");
+            // Debug.Log("Ignoring button press due to quick succession.");
             return; // Exit the Update method to ignore the button press
         }
 
@@ -76,7 +76,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (animatorToPause != null)
             {
-                animatorToPause.Play("YourAnimationName"); // Play animation if not already playing
+                animatorToPause.SetTrigger("moving"); // Play animation if not already playing
                 Debug.Log("First button press - animation started.");
             }
             return; // Exit the Update method to prevent further checks on the first press
