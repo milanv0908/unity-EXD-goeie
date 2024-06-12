@@ -16,6 +16,8 @@ public class Playermovement2 : MonoBehaviour
     public bool isFirstPress = true; // Boolean to track the first button press
     public int buttonPressCount = 0;
     private float time2; // Time of the previous button press
+    public AudioSource audiosource;
+    public AudioClip Rythm;
 
     void Start()
     {
@@ -78,6 +80,7 @@ StartCoroutine(kaka());
                 if (animatorToPause != null)
                 {
                     animatorToPause.SetTrigger("moving"); // Play animation if not already playing
+                    audiosource.PlayOneShot(Rythm);
                     Debug.Log("First button press - animation started.");
                 }
                 return; // Exit the Update method to prevent further checks on the first press
