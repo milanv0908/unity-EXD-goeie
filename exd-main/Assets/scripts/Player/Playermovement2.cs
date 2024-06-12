@@ -32,96 +32,95 @@ public class Playermovement2 : MonoBehaviour
         }
     }
 
-   void Update()
-{
-     if (sp != null && sp.IsOpen)
+    void Update()
     {
-        try
+        if (sp != null && sp.IsOpen)
         {
-            string serialData = sp.ReadExisting(); // Read all available bytes as a string
-            if (!string.IsNullOrEmpty(serialData))
+            try
             {
-                currentDirection = Convert.ToInt32(serialData[0]); // Extract the first byte
-                float previousTime2 = time2; // Store the previous value of time2
-                time2 = Time.time; // Update time2 with the current time
-                timeSinceLastPress = time2 - previousTime2; // Calculate time since last button press
-                buttonPressCount++;
-                Debug.Log(timeSinceLastPress);
+                string serialData = sp.ReadExisting(); // Read all available bytes as a string
+                if (!string.IsNullOrEmpty(serialData))
+                {
+                    currentDirection = Convert.ToInt32(serialData[0]); // Extract the first byte
+                    float previousTime2 = time2; // Store the previous value of time2
+                    time2 = Time.time; // Update time2 with the current time
+                    timeSinceLastPress = time2 - previousTime2; // Calculate time since last button press
+                    buttonPressCount++;
+                    Debug.Log(timeSinceLastPress);
+                }
+            }
+            catch (TimeoutException)
+            {
+                // Handle timeout - it is expected to occur frequently
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Error reading from serial port: " + e.Message);
             }
         }
-        catch (TimeoutException)
-        {
-            // Handle timeout - it is expected to occur frequently
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("Error reading from serial port: " + e.Message);
-        }
-    }
 
-    if (timeSinceLastPress < 0.1f)
+        if (timeSinceLastPress < 0.1f)
         {
             // Debug.Log("Ignoring button press due to quick succession.");
             return; // Exit the Update method to ignore the button press
         }
 
-    // Check for button press
-    if (currentDirection != 0)
-    {
-        if (isFirstPress)
+        // Check for button press
+        if (currentDirection != 0)
         {
-            lastButtonPressTime = Time.time; // Update last button press time
-            Debug.Log("First button press detected.");
-            StartCoroutine(First());
-
-            if (animatorToPause != null)
+StartCoroutine(kaka());
+            if (isFirstPress)
             {
-                animatorToPause.SetTrigger("moving"); // Play animation if not already playing
-                Debug.Log("First button press - animation started.");
-            }
-            return; // Exit the Update method to prevent further checks on the first press
-        }
-
-        if (timeSinceLastPress >= minTimeout && timeSinceLastPress <= maxTimeout)
-        {
-            lastButtonPressTime = Time.time; // Update last button press time
-            Debug.Log("Button pressed within the allowed time frame.");
-            Debug.Log("Button is pressable and won't trigger the falling animation.");
-
-            if (animatorToPause != null)
-            {
-                animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
-                animatorToPause.speed = 1f; // Resume animation if paused
-                Debug.Log("Button pressed within allowed time frame - animation resumed.");
-            }
-        }
-        else if (timeSinceLastPress < minTimeout || timeSinceLastPress > maxTimeout)
-        {
-            if (buttonPressCount >= 2)
-            {
-                Debug.Log("Button pressed too soon or too late, triggering falling animation.");
+                lastButtonPressTime = Time.time; // Update last button press time
+                Debug.Log("First button press detected.");
+                StartCoroutine(First());
 
                 if (animatorToPause != null)
                 {
-                    animatorToPause.speed = 0f;
+                    animatorToPause.SetTrigger("moving"); // Play animation if not already playing
+                    Debug.Log("First button press - animation started.");
+                }
+                return; // Exit the Update method to prevent further checks on the first press
+            }
+
+            if (timeSinceLastPress >= minTimeout && timeSinceLastPress <= maxTimeout)
+            {
+                lastButtonPressTime = Time.time; // Update last button press time
+                Debug.Log("Button pressed within the allowed time frame.");
+                Debug.Log("Button is pressable and won't trigger the falling animation.");
+
+                if (animatorToPause != null)
+                {
+                    animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
+                    animatorToPause.speed = 1f; // Resume animation if paused
+                    Debug.Log("Button pressed within allowed time frame - animation resumed.");
+                }
+            }
+            else if (timeSinceLastPress < minTimeout || timeSinceLastPress > maxTimeout)
+            {
+                if (buttonPressCount >= 2)
+                {
+                    Debug.Log("Button pressed too soon or too late, pausing animation.");
+
+                    if (animatorToPause != null)
+                    {
+                        animatorToPause.speed = 0f; // Pause the animation
+                    }
                 }
             }
         }
-    }
 
-    // Check if the time since the last button press has exceeded the maxTimeout
-    if (!isFirstPress && lastButtonPressTime >= 0 && Time.time - lastButtonPressTime > maxTimeout)
-    {
-        Debug.Log("No button press detected within the allowed time frame, triggering falling animation.");
-        if (animatorToPause != null)
+        // Check if the time since the last button press has exceeded the maxTimeout
+        if (!isFirstPress && lastButtonPressTime >= 0 && Time.time - lastButtonPressTime > maxTimeout)
         {
-                animatorToPause.speed = 0f;
+            Debug.Log("No button press detected within the allowed time frame, pausing animation.");
+            if (animatorToPause != null)
+            {
+                animatorToPause.speed = 0f; // Pause the animation
+            }
+            lastButtonPressTime = Time.time; // Reset the timer to avoid continuous triggering
         }
-        lastButtonPressTime = Time.time; // Reset the timer to avoid continuous triggering
     }
-
-}
-
 
     void OnApplicationQuit()
     {
@@ -139,5 +138,10 @@ public class Playermovement2 : MonoBehaviour
 
         // Reset timeSinceLastPress to 0 after the first button press
         timeSinceLastPress = 0f;
+    }
+
+    IEnumerator kaka() {
+        yield return new WaitForSeconds(10);
+        animatorToPause.speed = 0f;
     }
 }
