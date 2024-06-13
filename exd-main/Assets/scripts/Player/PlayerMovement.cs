@@ -29,7 +29,7 @@ public class PlayerMovement : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError("Failed to open serial port: " + e.Message);
-        }
+        } 
     }
 
    void Update()

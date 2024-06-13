@@ -70,7 +70,7 @@ public class Playermovement2 : MonoBehaviour
         // Check for button press
         if (currentDirection != 0)
         {
-StartCoroutine(kaka());
+        StartCoroutine(tenSecond());
             if (isFirstPress)
             {
                 lastButtonPressTime = Time.time; // Update last button press time
@@ -95,8 +95,10 @@ StartCoroutine(kaka());
                 if (animatorToPause != null)
                 {
                     animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
-                    animatorToPause.speed = 10f; // Resume animation if paused
+                    animatorToPause.speed = 1f; // Resume animation if paused
                     Debug.Log("Button pressed within allowed time frame - animation resumed.");
+                    StartCoroutine(PauseAfterClick());
+
                 }
             }
             else if (timeSinceLastPress < minTimeout || timeSinceLastPress > maxTimeout)
@@ -143,8 +145,13 @@ StartCoroutine(kaka());
         timeSinceLastPress = 0f;
     }
 
-    IEnumerator kaka() {
+    IEnumerator tenSecond() {
         yield return new WaitForSeconds(10);
+        animatorToPause.speed = 0f;
+    }
+
+       IEnumerator PauseAfterClick() {
+        yield return new WaitForSeconds(3);
         animatorToPause.speed = 0f;
     }
 }
