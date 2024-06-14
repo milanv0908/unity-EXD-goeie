@@ -173,20 +173,15 @@ public class Playermovement2 : MonoBehaviour
             float elapsedTime = rewindStartTime - timeFirstPress;
 
             // Calculate the target time to rewind to
-            float targetRewindTime = elapsedTime * 0.05f; // Rewind 5% of the elapsed time
+            float targetRewindTime = elapsedTime * 0.0005f; // Rewind 5% of the elapsed time
             float targetAnimTime = animationStartTime - targetRewindTime;
 
+           
             // Normalize the target time to [0,1]
             float normalizedTime = Mathf.Clamp01(targetAnimTime / animatorToPause.GetCurrentAnimatorStateInfo(0).length);
 
             animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
-
-            // Restore original position
-            transform.position = originalPosition;
-
-            isRewinding = false;
-            animatorToPause.speed = 1.0f; // Ensure the animation plays at normal speed after rewinding
-            animatorToPause.SetTrigger("moving"); // Restart the animation
+            StartCoroutine(ResetTime());           
         }
     }
 
@@ -206,6 +201,27 @@ public class Playermovement2 : MonoBehaviour
         timeFirstPress = Time.time;
         // Reset timeSinceLastPress to 0 after the first button press
         timeSinceLastPress = 0f;
+    }
+
+    IEnumerator ResetTime()
+    {
+        yield return new WaitForSeconds(2);
+       if (isRewinding)
+        {
+            float elapsedTime = rewindStartTime - timeFirstPress;
+
+            // Calculate the target time to rewind to
+            float targetRewindTime = elapsedTime * 0.0f; // Rewind 5% of the elapsed time
+            float targetAnimTime = animationStartTime - targetRewindTime;
+           
+            // Normalize the target time to [0,1]
+            float normalizedTime = Mathf.Clamp01(targetAnimTime / animatorToPause.GetCurrentAnimatorStateInfo(0).length);
+
+            animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
+
+             isRewinding = false;
+            animatorToPause.speed = 1.0f;
+        }
     }
 
     void AdjustAnimationBackwards()
