@@ -14,16 +14,29 @@ public class Playermovement2 : MonoBehaviour
     private float lastButtonPressTime = -1f; // Time of the last button press, initialized to -1 to indicate no presses yet
     private float timeSinceLastPress = 0f; // Time since the last button press
     public bool isFirstPress = true; // Boolean to track the first button press
-    public int buttonPressCount = 0;
-    private float time2; // Time of the previous button press
+    private int buttonPressCount = 0; // Count of button presses
     public AudioSource audiosource;
     public AudioClip Rythm;
+
+    // Booleans to control logging
+    private bool hasLoggedFirstPress = false;
+    private bool hasLoggedAllowedPress = false;
+    private bool hasLoggedDisallowedPress = false;
+    private bool hasLoggedNoPressTimeout = false;
+
+    // Variables for rewinding animation
+    private bool isRewinding = false;
+    private float rewindStartTime;
+    private float animationStartTime;
+    private Vector3 originalPosition;
+
+    private float timeFirstPress = 0f;
 
     void Start()
     {
         try
         {
-            sp = new SerialPort("COM3", 9600);
+            sp = new SerialPort("COM7", 9600);
             sp.Open();
             sp.ReadTimeout = 100; // Adjusting the read timeout to 100ms
             Debug.Log("Serial port opened successfully.");
@@ -44,9 +57,15 @@ public class Playermovement2 : MonoBehaviour
                 if (!string.IsNullOrEmpty(serialData))
                 {
                     currentDirection = Convert.ToInt32(serialData[0]); // Extract the first byte
-                    float previousTime2 = time2; // Store the previous value of time2
-                    time2 = Time.time; // Update time2 with the current time
-                    timeSinceLastPress = time2 - previousTime2; // Calculate time since last button press
+                    float previousTime2 = timeSinceLastPress; // Store the previous value of timeSinceLastPress
+                    timeSinceLastPress = Time.time - lastButtonPressTime; // Calculate time since last button press
+
+                    // Reset button press count if time since last press is too long
+                    if (timeSinceLastPress > maxTimeout)
+                    {
+                        buttonPressCount = 0;
+                    }
+
                     buttonPressCount++;
                     Debug.Log(timeSinceLastPress);
                 }
@@ -63,25 +82,32 @@ public class Playermovement2 : MonoBehaviour
 
         if (timeSinceLastPress < 0.1f)
         {
-            // Debug.Log("Ignoring button press due to quick succession.");
             return; // Exit the Update method to ignore the button press
         }
 
-        // Check for button press
         if (currentDirection != 0)
         {
-        StartCoroutine(tenSecond());
             if (isFirstPress)
             {
                 lastButtonPressTime = Time.time; // Update last button press time
-                Debug.Log("First button press detected.");
+
+                if (!hasLoggedFirstPress)
+                {
+                    Debug.Log("First button press detected.");
+                    hasLoggedFirstPress = true;
+                }
+
                 StartCoroutine(First());
 
-                if (animatorToPause != null)
+                if (animatorToPause != null && !IsAnimationReversing())
                 {
                     animatorToPause.SetTrigger("moving"); // Play animation if not already playing
                     audiosource.PlayOneShot(Rythm);
-                    Debug.Log("First button press - animation started.");
+
+                    if (!hasLoggedFirstPress)
+                    {
+                        Debug.Log("First button press - animation started.");
+                    }
                 }
                 return; // Exit the Update method to prevent further checks on the first press
             }
@@ -89,41 +115,78 @@ public class Playermovement2 : MonoBehaviour
             if (timeSinceLastPress >= minTimeout && timeSinceLastPress <= maxTimeout)
             {
                 lastButtonPressTime = Time.time; // Update last button press time
-                Debug.Log("Button pressed within the allowed time frame.");
-                Debug.Log("Button is pressable and won't trigger the falling animation.");
+
+                if (!hasLoggedAllowedPress)
+                {
+                    Debug.Log("Button pressed within the allowed time frame.");
+                    Debug.Log("Button is pressable and won't trigger the falling animation.");
+                    hasLoggedAllowedPress = true;
+                }
 
                 if (animatorToPause != null)
                 {
                     animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
                     animatorToPause.speed = 1f; // Resume animation if paused
-                    Debug.Log("Button pressed within allowed time frame - animation resumed.");
-                    StartCoroutine(PauseAfterClick());
 
+                    if (!hasLoggedAllowedPress)
+                    {
+                        Debug.Log("Button pressed within allowed time frame - animation resumed.");
+                    }
                 }
             }
             else if (timeSinceLastPress < minTimeout || timeSinceLastPress > maxTimeout)
             {
                 if (buttonPressCount >= 2)
                 {
-                    Debug.Log("Button pressed too soon or too late, pausing animation.");
+                    if (!hasLoggedDisallowedPress)
+                    {
+                        Debug.Log("Button pressed too soon or too late, adjusting animation.");
+                        hasLoggedDisallowedPress = true;
+                    }
 
                     if (animatorToPause != null)
                     {
-                        animatorToPause.speed = 0f; // Pause the animation
+                        AdjustAnimationBackwards();
                     }
                 }
             }
         }
 
-        // Check if the time since the last button press has exceeded the maxTimeout
         if (!isFirstPress && lastButtonPressTime >= 0 && Time.time - lastButtonPressTime > maxTimeout)
         {
-            Debug.Log("No button press detected within the allowed time frame, pausing animation.");
+            if (!hasLoggedNoPressTimeout)
+            {
+                Debug.Log("No button press detected within the allowed time frame, pausing animation.");
+                hasLoggedNoPressTimeout = true;
+            }
+
             if (animatorToPause != null)
             {
                 animatorToPause.speed = 0f; // Pause the animation
             }
             lastButtonPressTime = Time.time; // Reset the timer to avoid continuous triggering
+        }
+
+        // Handle animation rewind if isRewinding is true
+        if (isRewinding)
+        {
+            float elapsedTime = rewindStartTime - timeFirstPress;
+
+            // Calculate the target time to rewind to
+            float targetRewindTime = elapsedTime * 0.05f; // Rewind 5% of the elapsed time
+            float targetAnimTime = animationStartTime - targetRewindTime;
+
+            // Normalize the target time to [0,1]
+            float normalizedTime = Mathf.Clamp01(targetAnimTime / animatorToPause.GetCurrentAnimatorStateInfo(0).length);
+
+            animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
+
+            // Restore original position
+            transform.position = originalPosition;
+
+            isRewinding = false;
+            animatorToPause.speed = 1.0f; // Ensure the animation plays at normal speed after rewinding
+            animatorToPause.SetTrigger("moving"); // Restart the animation
         }
     }
 
@@ -140,18 +203,37 @@ public class Playermovement2 : MonoBehaviour
     {
         yield return new WaitForSeconds(1);
         isFirstPress = false;
-
+        timeFirstPress = Time.time;
         // Reset timeSinceLastPress to 0 after the first button press
         timeSinceLastPress = 0f;
     }
 
-    IEnumerator tenSecond() {
-        yield return new WaitForSeconds(10);
-        animatorToPause.speed = 0f;
+    void AdjustAnimationBackwards()
+    {
+        if (animatorToPause != null)
+        {
+            // Save original position
+            originalPosition = transform.position;
+
+            // Rewind the animation by 5%
+            float normalizedTime = Mathf.Clamp01(animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime - 0.05f);
+            animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
+
+            // Set isRewinding to true
+            rewindStartTime = Time.time; //tijd nu
+            isRewinding = true;
+            // rewindStartTime = Time.time;
+            animationStartTime = animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime * animatorToPause.GetCurrentAnimatorStateInfo(0).length;
+        }
     }
 
-       IEnumerator PauseAfterClick() {
-        yield return new WaitForSeconds(3);
-        animatorToPause.speed = 0f;
+    bool IsAnimationReversing()
+    {
+        if (animatorToPause != null)
+        {
+            // Check if the animation is currently playing in reverse
+            return animatorToPause.GetCurrentAnimatorStateInfo(0).speed < 0;
+        }
+        return false;
     }
 }
