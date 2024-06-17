@@ -19,6 +19,8 @@ public class Playermovement2 : MonoBehaviour
     public AudioClip Rythm;
     public AudioClip RythmInstant;
 
+    private bool hasPlayedAudio = false; 
+
 
     // Booleans to control logging
     private bool hasLoggedFirstPress = false;
@@ -89,6 +91,7 @@ public class Playermovement2 : MonoBehaviour
 
         if (currentDirection != 0)
         {
+             
             if (isFirstPress)
             {
                 lastButtonPressTime = Time.time; // Update last button press time
@@ -121,6 +124,12 @@ public class Playermovement2 : MonoBehaviour
               
                     lastButtonPressTime = Time.time; // Update last button press time
 
+                    if (!hasPlayedAudio) {
+                    audiosource.PlayOneShot(Rythm);
+                    hasPlayedAudio = true;
+                    StartCoroutine(PlayAudio());
+                    }
+
                     if (!hasLoggedAllowedPress)
                     {
                         Debug.Log("Button pressed within the allowed time frame.");
@@ -142,6 +151,7 @@ public class Playermovement2 : MonoBehaviour
             }
             else if (timeSinceLastPress < minTimeout || timeSinceLastPress > maxTimeout)
             {
+                
                 if (buttonPressCount >= 2)
                 {
                     if (!hasLoggedDisallowedPress)
@@ -190,6 +200,8 @@ public class Playermovement2 : MonoBehaviour
         }
     }
 
+    
+
     void OnApplicationQuit()
     {
         if (sp != null && sp.IsOpen)
@@ -206,6 +218,12 @@ public class Playermovement2 : MonoBehaviour
         timeFirstPress = Time.time;
         // Reset timeSinceLastPress to 0 after the first button press
         timeSinceLastPress = 0f;
+    }
+
+        IEnumerator PlayAudio()
+    {
+        yield return new WaitForSeconds(7);
+        hasPlayedAudio = false;
     }
 
     IEnumerator ResetTime()
