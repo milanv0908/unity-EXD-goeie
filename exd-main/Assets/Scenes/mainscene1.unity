@@ -3577,10 +3577,8 @@ MonoBehaviour:
   maxTimeout: 10
   animatorToPause: {fileID: 1739504469}
   isFirstPress: 1
-  buttonPressCount: 0
   audiosource: {fileID: 1739504472}
   Rythm: {fileID: 8300000, guid: 62cbacce3b17f3945ae1634b773b2820, type: 3}
-  rewindTime: 1
 --- !u!82 &1739504472
 AudioSource:
   m_ObjectHideFlags: 0
