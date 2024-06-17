@@ -20,6 +20,7 @@ public class Playermovement2 : MonoBehaviour
     public AudioClip RythmInstant;
 
     private bool hasPlayedAudio = false; 
+    private bool hasPlayedAudio2 = false;
 
 
     // Booleans to control logging
@@ -35,6 +36,8 @@ public class Playermovement2 : MonoBehaviour
     private Vector3 originalPosition;
 
     private float timeFirstPress = 0f;
+
+    private bool inTimer = true;
 
     void Start()
     {
@@ -96,6 +99,7 @@ public class Playermovement2 : MonoBehaviour
             {
                 lastButtonPressTime = Time.time; // Update last button press time
                 hasPlayedAudio = false; // Reset the audio play flag on first press
+                hasPlayedAudio2 = false; // Reset the audio play flag on first press
 
                 if (!hasLoggedFirstPress)
                 {
@@ -121,10 +125,12 @@ public class Playermovement2 : MonoBehaviour
 
             if (timeSinceLastPress >= minTimeout && timeSinceLastPress <= maxTimeout)
             {
-              
+                    inTimer = true;
                     lastButtonPressTime = Time.time; // Update last button press time
+                    // StopCoroutine(PlayAudio2());
 
                     if (!hasPlayedAudio) {
+                    audiosource.Stop();
                     audiosource.PlayOneShot(Rythm);
                     hasPlayedAudio = true;
                     StartCoroutine(PlayAudio());
@@ -154,6 +160,18 @@ public class Playermovement2 : MonoBehaviour
                 
                 if (buttonPressCount >= 2)
                 {
+                    // StopCoroutine(PlayAudio());
+                    inTimer = false;
+
+
+                    if (!hasPlayedAudio2) {
+                    audiosource.Stop();
+                    audiosource.PlayOneShot(Rythm);
+                    hasPlayedAudio2 = true;
+                    StartCoroutine(PlayAudio2());
+                    }
+
+
                     if (!hasLoggedDisallowedPress)
                     {
                         Debug.Log("Button pressed too soon or too late, adjusting animation.");
@@ -220,10 +238,22 @@ public class Playermovement2 : MonoBehaviour
         timeSinceLastPress = 0f;
     }
 
-        IEnumerator PlayAudio()
+    IEnumerator PlayAudio()
     {
+        if (inTimer){
         yield return new WaitForSeconds(7);
         hasPlayedAudio = false;
+        Debug.Log("1e audio doet");
+        }
+    }
+
+    IEnumerator PlayAudio2()
+    {
+        if (!inTimer){
+        yield return new WaitForSeconds(7);
+        hasPlayedAudio2 = false;
+        Debug.Log("2e audio doet");
+        }
     }
 
     IEnumerator ResetTime()
