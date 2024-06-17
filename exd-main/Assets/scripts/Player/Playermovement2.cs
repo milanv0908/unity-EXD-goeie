@@ -173,7 +173,7 @@ public class Playermovement2 : MonoBehaviour
             float elapsedTime = rewindStartTime - timeFirstPress;
 
             // Calculate the target time to rewind to
-            float targetRewindTime = elapsedTime * 0.0005f; // Rewind 5% of the elapsed time
+            float targetRewindTime = elapsedTime * 0.0005f; //speed of reversal
             float targetAnimTime = animationStartTime - targetRewindTime;
 
            
@@ -210,8 +210,7 @@ public class Playermovement2 : MonoBehaviour
         {
             float elapsedTime = rewindStartTime - timeFirstPress;
 
-            // Calculate the target time to rewind to
-            float targetRewindTime = elapsedTime * 0.0f; // Rewind 5% of the elapsed time
+            float targetRewindTime = elapsedTime * 0.0f; //stop the rewind
             float targetAnimTime = animationStartTime - targetRewindTime;
            
             // Normalize the target time to [0,1]
@@ -228,14 +227,14 @@ public class Playermovement2 : MonoBehaviour
     {
         if (animatorToPause != null)
         {
-            // Save original position
+
             originalPosition = transform.position;
 
-            // Rewind the animation by 5%
+
             float normalizedTime = Mathf.Clamp01(animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime - 0.05f);
             animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
 
-            // Set isRewinding to true
+
             rewindStartTime = Time.time; //tijd nu
             isRewinding = true;
             // rewindStartTime = Time.time;
@@ -247,7 +246,7 @@ public class Playermovement2 : MonoBehaviour
     {
         if (animatorToPause != null)
         {
-            // Check if the animation is currently playing in reverse
+            // Check of je al aan het bewegen bent
             return animatorToPause.GetCurrentAnimatorStateInfo(0).speed < 0;
         }
         return false;
