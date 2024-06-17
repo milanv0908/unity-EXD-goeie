@@ -264,6 +264,7 @@ public class Playermovement2 : MonoBehaviour
             float elapsedTime = rewindStartTime - timeFirstPress;
 
             float targetRewindTime = elapsedTime * 0.0f; //stop the rewind
+            Debug.Log("werken aub");
             float targetAnimTime = animationStartTime - targetRewindTime;
 
             // Normalize the target time to [0,1]
