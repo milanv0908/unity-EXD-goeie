@@ -17,6 +17,8 @@ public class Playermovement2 : MonoBehaviour
     private int buttonPressCount = 0; // Count of button presses
     public AudioSource audiosource;
     public AudioClip Rythm;
+    public AudioClip RythmInstant;
+
 
     // Booleans to control logging
     private bool hasLoggedFirstPress = false;
@@ -90,11 +92,14 @@ public class Playermovement2 : MonoBehaviour
             if (isFirstPress)
             {
                 lastButtonPressTime = Time.time; // Update last button press time
+                hasPlayedAudio = false; // Reset the audio play flag on first press
 
                 if (!hasLoggedFirstPress)
                 {
                     Debug.Log("First button press detected.");
                     hasLoggedFirstPress = true;
+                    audiosource.PlayOneShot(RythmInstant);
+                    audiosource.PlayOneShot(Rythm);
                 }
 
                 StartCoroutine(First());
@@ -102,7 +107,6 @@ public class Playermovement2 : MonoBehaviour
                 if (animatorToPause != null && !IsAnimationReversing())
                 {
                     animatorToPause.SetTrigger("moving"); // Play animation if not already playing
-                    audiosource.PlayOneShot(Rythm);
 
                     if (!hasLoggedFirstPress)
                     {
@@ -114,25 +118,27 @@ public class Playermovement2 : MonoBehaviour
 
             if (timeSinceLastPress >= minTimeout && timeSinceLastPress <= maxTimeout)
             {
-                lastButtonPressTime = Time.time; // Update last button press time
-
-                if (!hasLoggedAllowedPress)
-                {
-                    Debug.Log("Button pressed within the allowed time frame.");
-                    Debug.Log("Button is pressable and won't trigger the falling animation.");
-                    hasLoggedAllowedPress = true;
-                }
-
-                if (animatorToPause != null)
-                {
-                    animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
-                    animatorToPause.speed = 1f; // Resume animation if paused
+              
+                    lastButtonPressTime = Time.time; // Update last button press time
 
                     if (!hasLoggedAllowedPress)
                     {
-                        Debug.Log("Button pressed within allowed time frame - animation resumed.");
+                        Debug.Log("Button pressed within the allowed time frame.");
+                        Debug.Log("Button is pressable and won't trigger the falling animation.");
+                        hasLoggedAllowedPress = true;
                     }
-                }
+
+                    if (animatorToPause != null)
+                    {
+                        animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
+                        animatorToPause.speed = 1f; // Resume animation if paused
+
+                        if (!hasLoggedAllowedPress)
+                        {
+                            Debug.Log("Button pressed within allowed time frame - animation resumed.");
+                        }
+                    }
+                
             }
             else if (timeSinceLastPress < minTimeout || timeSinceLastPress > maxTimeout)
             {
@@ -176,12 +182,11 @@ public class Playermovement2 : MonoBehaviour
             float targetRewindTime = elapsedTime * 0.0005f; //speed of reversal
             float targetAnimTime = animationStartTime - targetRewindTime;
 
-           
             // Normalize the target time to [0,1]
             float normalizedTime = Mathf.Clamp01(targetAnimTime / animatorToPause.GetCurrentAnimatorStateInfo(0).length);
 
             animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
-            StartCoroutine(ResetTime());           
+            StartCoroutine(ResetTime());
         }
     }
 
@@ -206,19 +211,19 @@ public class Playermovement2 : MonoBehaviour
     IEnumerator ResetTime()
     {
         yield return new WaitForSeconds(2);
-       if (isRewinding)
+        if (isRewinding)
         {
             float elapsedTime = rewindStartTime - timeFirstPress;
 
             float targetRewindTime = elapsedTime * 0.0f; //stop the rewind
             float targetAnimTime = animationStartTime - targetRewindTime;
-           
+
             // Normalize the target time to [0,1]
             float normalizedTime = Mathf.Clamp01(targetAnimTime / animatorToPause.GetCurrentAnimatorStateInfo(0).length);
 
             animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
 
-             isRewinding = false;
+            isRewinding = false;
             animatorToPause.speed = 1.0f;
         }
     }
@@ -227,17 +232,13 @@ public class Playermovement2 : MonoBehaviour
     {
         if (animatorToPause != null)
         {
-
             originalPosition = transform.position;
-
 
             float normalizedTime = Mathf.Clamp01(animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime - 0.05f);
             animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
 
-
             rewindStartTime = Time.time; //tijd nu
             isRewinding = true;
-            // rewindStartTime = Time.time;
             animationStartTime = animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime * animatorToPause.GetCurrentAnimatorStateInfo(0).length;
         }
     }
