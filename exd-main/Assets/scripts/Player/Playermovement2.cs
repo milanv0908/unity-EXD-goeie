@@ -42,7 +42,7 @@ public class Playermovement2 : MonoBehaviour
     {
         try
         {
-            sp = new SerialPort("COM7", 9600);
+            sp = new SerialPort("COM3", 9600);
             sp.Open();
             sp.ReadTimeout = 100; // Adjusting the read timeout to 100ms
             Debug.Log("Serial port opened successfully.");
@@ -183,17 +183,17 @@ public class Playermovement2 : MonoBehaviour
         //pause na 10 seconden
         if (!isFirstPress && lastButtonPressTime >= 0 && Time.time - lastButtonPressTime > maxTimeout)
         {
-            if (!hasLoggedNoPressTimeout)
-            {
-                Debug.Log("No button press detected within the allowed time frame, pausing animation.");
-                hasLoggedNoPressTimeout = true;
-            }
+            // if (!hasLoggedNoPressTimeout)
+            // {
+            //     Debug.Log("No button press detected within the allowed time frame, pausing animation.");
+            //     hasLoggedNoPressTimeout = true;
+            // }
 
-            if (animatorToPause != null)
-            {
-                animatorToPause.speed = 0f; // Pause the animation
-            }
-            lastButtonPressTime = Time.time; // Reset the timer to avoid continuous triggering
+            // if (animatorToPause != null)
+            // {
+            //     animatorToPause.speed = 0f; // Pause the animation
+            // }
+            // lastButtonPressTime = Time.time; // Reset the timer to avoid continuous triggering
         }
 
         // Handle animation rewind if isRewinding is true
@@ -270,6 +270,7 @@ public class Playermovement2 : MonoBehaviour
 
             isRewinding = false;
             animatorToPause.speed = 1.0f;
+             lastButtonPressTime = Time.time; // Reset the timer to avoid continuous triggering
         }
     }
 
