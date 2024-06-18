@@ -9,7 +9,7 @@ public class Playermovement2 : MonoBehaviour
       private bool test1 = false;
     public float speed;
     public float minTimeout = 3f; // Minimum time in seconds before the next button press is allowed
-    public float maxTimeout = 10f; // Maximum time in seconds before the next button press is allowed
+    public float maxTimeout = 14f; // Maximum time in seconds before the next button press is allowed
     public Animator animatorToPause; // Reference to the animator component to pause
     private SerialPort sp;
     private int currentDirection = 0; // Variable to keep track of the current direction
