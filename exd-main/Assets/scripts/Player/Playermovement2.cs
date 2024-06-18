@@ -5,6 +5,8 @@ using System.Collections;
 
 public class Playermovement2 : MonoBehaviour
 {
+
+      private bool test1 = false;
     public float speed;
     public float minTimeout = 3f; // Minimum time in seconds before the next button press is allowed
     public float maxTimeout = 10f; // Maximum time in seconds before the next button press is allowed
@@ -42,7 +44,7 @@ public class Playermovement2 : MonoBehaviour
     {
         try
         {
-            sp = new SerialPort("COM3", 9600);
+            sp = new SerialPort("COM7", 9600);
             sp.Open();
             sp.ReadTimeout = 100; // Adjusting the read timeout to 100ms
             Debug.Log("Serial port opened successfully.");
@@ -93,7 +95,6 @@ public class Playermovement2 : MonoBehaviour
 
         if (currentDirection != 0)
         {
-
             if (isFirstPress)
             {
                 lastButtonPressTime = Time.time; // Update last button press time
@@ -110,8 +111,7 @@ public class Playermovement2 : MonoBehaviour
 
                 StartCoroutine(First());
 
-                if (animatorToPause != null)
-                // if (animatorToPause != null && !IsAnimationReversing())
+                if (animatorToPause != null && !IsAnimationReversing())
                 {
                     animatorToPause.SetTrigger("moving"); // Play animation if not already playing
 
@@ -126,6 +126,7 @@ public class Playermovement2 : MonoBehaviour
             if (timeSinceLastPress >= minTimeout && timeSinceLastPress <= maxTimeout)
             {
                 inTimer = true;
+                test1 = false;
 
                 if (!hasPlayedAudio)
                 {
@@ -146,17 +147,12 @@ public class Playermovement2 : MonoBehaviour
                 {
                     animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
                     animatorToPause.speed = 1f; // Resume animation if paused
-                lastButtonPressTime = Time.time; // Update last button press time
+                    lastButtonPressTime = Time.time; // Update last button press time
                     StartCoroutine(paus());
-
-                    // Pause animation after 2 seconds
-                    // StartCoroutine(PauseAnimation());
                 }
-
             }
             else if (timeSinceLastPress < minTimeout || timeSinceLastPress > maxTimeout)
             {
-
                 if (buttonPressCount >= 2)
                 {
                     inTimer = false;
@@ -177,45 +173,42 @@ public class Playermovement2 : MonoBehaviour
 
                     if (animatorToPause != null)
                     {
-                        AdjustAnimationBackwards();
+                        StartCoroutine(AdjustAnimationBackwards());
                     }
                 }
             }
         }
-        //pause na 10 seconden
+
         if (!isFirstPress && lastButtonPressTime >= 0 && Time.time - lastButtonPressTime > maxTimeout)
         {
-            // if (!hasLoggedNoPressTimeout)
-            // {
-            //     Debug.Log("No button press detected within the allowed time frame, pausing animation.");
-            //     hasLoggedNoPressTimeout = true;
-            // }
+            if (!hasLoggedNoPressTimeout)
+            {
+                Debug.Log("No button press detected within the allowed time frame, pausing animation.");
+                hasLoggedNoPressTimeout = true;
+            }
 
-            // if (animatorToPause != null)
-            // {
-            //     animatorToPause.speed = 0f; // Pause the animation
-            // }
-            // lastButtonPressTime = Time.time; // Reset the timer to avoid continuous triggering
+            if (animatorToPause != null)
+            {
+                animatorToPause.speed = 0f; // Pause the animation
+            }
+            lastButtonPressTime = Time.time; // Reset the timer to avoid continuous triggering
         }
 
         // Handle animation rewind if isRewinding is true
         if (isRewinding)
         {
-            float elapsedTime = rewindStartTime - timeFirstPress;
-
-            // Calculate the target time to rewind to
-            float targetRewindTime = elapsedTime * 0.0005f; //speed of reversal
-            float targetAnimTime = animationStartTime - targetRewindTime;
-
-            // Normalize the target time to [0,1]
-            float normalizedTime = Mathf.Clamp01(targetAnimTime / animatorToPause.GetCurrentAnimatorStateInfo(0).length);
+            float elapsedTime = Time.time - rewindStartTime;
+            float normalizedTime = Mathf.Clamp01(animationStartTime - (elapsedTime / 2f)); // Adjusted rewind speed
 
             animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
-            StartCoroutine(ResetTime());
+
+            if (elapsedTime >= 2f)
+            {
+                isRewinding = false;
+                animatorToPause.speed = 0f; // Pause at the rewinded point
+            }
         }
     }
-
-
 
     void OnApplicationQuit()
     {
@@ -231,12 +224,11 @@ public class Playermovement2 : MonoBehaviour
         yield return new WaitForSeconds(1);
         isFirstPress = false;
         timeFirstPress = Time.time;
-        // Reset timeSinceLastPress to 0 after the first button press
         timeSinceLastPress = 0f;
     }
 
-    IEnumerator paus() {
-        // timeSinceLastPress = Time.time;
+    IEnumerator paus()
+    {
         yield return new WaitForSeconds(2);
         animatorToPause.speed = 0f;
     }
@@ -261,60 +253,39 @@ public class Playermovement2 : MonoBehaviour
         }
     }
 
-    IEnumerator ResetTime()
+    IEnumerator AdjustAnimationBackwards()
     {
-        yield return new WaitForSeconds(2);
-        if (isRewinding)
+
+        if (!test1){
+
+        if (animatorToPause != null)
         {
-            float elapsedTime = rewindStartTime - timeFirstPress;
-
-            float targetRewindTime = elapsedTime * 0.0f; //stop the rewind
-            float targetAnimTime = animationStartTime - targetRewindTime;
-
-            // Normalize the target time to [0,1]
-            float normalizedTime = Mathf.Clamp01(targetAnimTime / animatorToPause.GetCurrentAnimatorStateInfo(0).length);
-
-            animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
-
-            isRewinding = false;
-            animatorToPause.speed = 1.0f;
-             lastButtonPressTime = Time.time; // Reset the timer to avoid continuous triggering
-        }
-    }
-
-    // IEnumerator PauseAnimation()
-    // {
-    //     yield return new WaitForSeconds(2f);
-
-    //     if (animatorToPause != null)
-    //     {
-    //         animatorToPause.speed = 0.00000001f; // Pause the animation after 2 seconds
-    //     }
-    // }
-
-    void AdjustAnimationBackwards()
-    {
-        if (animatorToPause = null)
-        {
-            originalPosition = transform.position;
-
-            float normalizedTime = Mathf.Clamp01(animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime - 0.05f);
+            float normalizedTime = Mathf.Clamp01(animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime - 0.0001f); // Adjusted step back
             animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
 
             rewindStartTime = Time.time; // Record the start time of the rewind
             isRewinding = true;
-            animationStartTime = animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime * animatorToPause.GetCurrentAnimatorStateInfo(0).length;
+            animationStartTime = normalizedTime;
+
+            yield return new WaitForSeconds(2); // Wait for 2 seconds
+
+            isRewinding = false;
+            animatorToPause.speed = 0f; // Pause at the rewinded point
+            if (animatorToPause.speed == 0f){
+                Debug.Log("Animation paused");
+                animatorToPause.speed = 0f;
+            }
+            test1 = true;
+        }
         }
     }
 
     bool IsAnimationReversing()
     {
-        if (animatorToPause = null)
+        if (animatorToPause != null)
         {
-            // Check if animation is already reversing
             return animatorToPause.GetCurrentAnimatorStateInfo(0).speed < 0;
         }
         return false;
     }
 }
-
