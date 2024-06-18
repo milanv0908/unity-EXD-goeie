@@ -110,7 +110,8 @@ public class Playermovement2 : MonoBehaviour
 
                 StartCoroutine(First());
 
-                if (animatorToPause != null && !IsAnimationReversing())
+                if (animatorToPause != null)
+                // if (animatorToPause != null && !IsAnimationReversing())
                 {
                     animatorToPause.SetTrigger("moving"); // Play animation if not already playing
 
@@ -125,7 +126,6 @@ public class Playermovement2 : MonoBehaviour
             if (timeSinceLastPress >= minTimeout && timeSinceLastPress <= maxTimeout)
             {
                 inTimer = true;
-                lastButtonPressTime = Time.time; // Update last button press time
 
                 if (!hasPlayedAudio)
                 {
@@ -146,6 +146,8 @@ public class Playermovement2 : MonoBehaviour
                 {
                     animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
                     animatorToPause.speed = 1f; // Resume animation if paused
+                lastButtonPressTime = Time.time; // Update last button press time
+                    StartCoroutine(paus());
 
                     // Pause animation after 2 seconds
                     // StartCoroutine(PauseAnimation());
@@ -233,6 +235,12 @@ public class Playermovement2 : MonoBehaviour
         timeSinceLastPress = 0f;
     }
 
+    IEnumerator paus() {
+        // timeSinceLastPress = Time.time;
+        yield return new WaitForSeconds(2);
+        animatorToPause.speed = 0f;
+    }
+
     IEnumerator PlayAudio()
     {
         if (inTimer)
@@ -286,7 +294,7 @@ public class Playermovement2 : MonoBehaviour
 
     void AdjustAnimationBackwards()
     {
-        if (animatorToPause != null)
+        if (animatorToPause = null)
         {
             originalPosition = transform.position;
 
@@ -301,7 +309,7 @@ public class Playermovement2 : MonoBehaviour
 
     bool IsAnimationReversing()
     {
-        if (animatorToPause != null)
+        if (animatorToPause = null)
         {
             // Check if animation is already reversing
             return animatorToPause.GetCurrentAnimatorStateInfo(0).speed < 0;
