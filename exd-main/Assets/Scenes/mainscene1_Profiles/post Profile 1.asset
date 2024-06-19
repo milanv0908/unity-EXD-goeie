@@ -61,20 +61,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 556797029e73b2347956b6579e77e05b, type: 3}
   m_Name: DepthOfField
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   enabled:
     overrideState: 1
     value: 1
   focusDistance:
     overrideState: 0
-    value: 10
+    value: 82.48
   aperture:
-    overrideState: 0
-    value: 5.6
+    overrideState: 1
+    value: 0.1
   focalLength:
-    overrideState: 0
-    value: 50
+    overrideState: 1
+    value: 1
   kernelSize:
+    overrideState: 0
+    value: 0
+--- !u!114 &-6934731440532682635
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40b924e2dad56384a8df2a1e111bb675, type: 3}
+  m_Name: Vignette
+  m_EditorClassIdentifier: 
+  active: 1
+  enabled:
+    overrideState: 1
+    value: 1
+  mode:
+    overrideState: 1
+    value: 0
+  color:
+    overrideState: 1
+    value: {r: 0.3584906, g: 0.3584906, b: 0.3584906, a: 1}
+  center:
+    overrideState: 1
+    value: {x: 0.5, y: 0.5}
+  intensity:
+    overrideState: 1
+    value: 0.633
+  smoothness:
+    overrideState: 1
+    value: 0.255
+  roundness:
+    overrideState: 0
+    value: 1
+  rounded:
+    overrideState: 0
+    value: 0
+  mask:
+    overrideState: 0
+    value: {fileID: 0}
+    defaultState: 1
+  opacity:
     overrideState: 0
     value: 1
 --- !u!114 &11400000
@@ -93,6 +137,9 @@ MonoBehaviour:
   - {fileID: -8010289571155621161}
   - {fileID: 1847635968612928502}
   - {fileID: -7192798727876115068}
+  - {fileID: 7635443141746277777}
+  - {fileID: -6934731440532682635}
+  - {fileID: 8554675869180466658}
 --- !u!114 &1847635968612928502
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -1404,3 +1451,59 @@ MonoBehaviour:
       - 0.5
       - 0.5
       - 0.5
+--- !u!114 &7635443141746277777
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b94fcd11afffcb142908bfcb1e261fba, type: 3}
+  m_Name: MotionBlur
+  m_EditorClassIdentifier: 
+  active: 0
+  enabled:
+    overrideState: 1
+    value: 1
+  shutterAngle:
+    overrideState: 1
+    value: 295
+  sampleCount:
+    overrideState: 1
+    value: 26
+--- !u!114 &8554675869180466658
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b77c5407dc277943b591ade9e6b18c5, type: 3}
+  m_Name: LensDistortion
+  m_EditorClassIdentifier: 
+  active: 1
+  enabled:
+    overrideState: 1
+    value: 1
+  intensity:
+    overrideState: 1
+    value: -100
+  intensityX:
+    overrideState: 1
+    value: 0.709
+  intensityY:
+    overrideState: 1
+    value: 0.596
+  centerX:
+    overrideState: 1
+    value: -0.27
+  centerY:
+    overrideState: 1
+    value: 0.15
+  scale:
+    overrideState: 1
+    value: 0.13

@@ -3671,6 +3671,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fff8a301d40c434c9c8fd4df065f5c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  postProcessVolume: {fileID: 677137319}
+  blurDuration: 5
   speed: 0
   minTimeout: 5
   maxTimeout: 10

@@ -2,9 +2,19 @@ using System;
 using UnityEngine;
 using System.IO.Ports;
 using System.Collections;
+using UnityEngine.Rendering.PostProcessing;
 
 public class Playermovement2 : MonoBehaviour
 {
+
+    public PostProcessVolume postProcessVolume;
+    public float effectDuration = 1f; // Aantal seconden dat het effect aan blijft
+    private bool isEffectActive = false;
+    private DepthOfField depthOfField;
+    private MotionBlur motionBlur;
+    private Vignette vignette;
+    private LensDistortion lensDistortion;
+
 
     private bool runBackwardsOnce = false;
     private bool runForewardsOnce = false;
@@ -47,6 +57,17 @@ public class Playermovement2 : MonoBehaviour
 
     void Start()
     {
+
+        postProcessVolume.profile.TryGetSettings(out depthOfField);
+        postProcessVolume.profile.TryGetSettings(out motionBlur);
+        postProcessVolume.profile.TryGetSettings(out vignette);
+        postProcessVolume.profile.TryGetSettings(out lensDistortion);
+
+        if (depthOfField != null) depthOfField.active = false;
+        if (motionBlur != null) motionBlur.active = false;
+        if (vignette != null) vignette.active = false;
+        if (lensDistortion != null) lensDistortion.active = false;
+
         try
         {
             sp = new SerialPort("COM7", 9600);
@@ -288,12 +309,17 @@ public class Playermovement2 : MonoBehaviour
 
         if (animatorToPause != null)
         {
-            float normalizedTime = Mathf.Clamp01(animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime - 0.0001f); // Adjusted step back
+            float normalizedTime = Mathf.Clamp01(animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime - 0.0005f); // Adjusted step back
             animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
 
             rewindStartTime = Time.time; // Record the start time of the rewind
             isRewinding = true;
             animationStartTime = normalizedTime;
+
+            if (!isEffectActive)
+             {
+                 StartCoroutine(ToggleFallEffect());
+             }
 
             yield return new WaitForSeconds(2); // Wait for 2 seconds
 
@@ -306,6 +332,28 @@ public class Playermovement2 : MonoBehaviour
             runBackwardsOnce = true;
         }
         }
+    }
+
+    IEnumerator ToggleFallEffect()
+    {
+        if (depthOfField == null || motionBlur == null || vignette == null || lensDistortion == null) yield break;
+
+        // Zet de effecten aan
+        depthOfField.active = true;
+        motionBlur.active = true;
+        vignette.active = true;
+        lensDistortion.active = true;
+        isEffectActive = true;
+
+        // Wacht voor de opgegeven duur
+        yield return new WaitForSeconds(2);
+
+        // Zet de effecten uit
+        depthOfField.active = false;
+        motionBlur.active = false;
+        vignette.active = false;
+        lensDistortion.active = false;
+        isEffectActive = false;
     }
 
     bool IsAnimationReversing()
