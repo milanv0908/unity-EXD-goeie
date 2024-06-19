@@ -8,6 +8,9 @@ public class Playermovement2 : MonoBehaviour
 
     private bool runBackwardsOnce = false;
     private bool runForewardsOnce = false;
+    private bool forward1 = true;
+
+    private bool RoutineRunning = false;
     public float speed;
     public float minTimeout = 3f; // Minimum time in seconds before the next button press is allowed
     public float maxTimeout = 14f; // Maximum time in seconds before the next button press is allowed
@@ -45,7 +48,7 @@ public class Playermovement2 : MonoBehaviour
     {
         try
         {
-            sp = new SerialPort("COM7", 9600);
+            sp = new SerialPort("COM3", 9600);
             sp.Open();
             sp.ReadTimeout = 100; // Adjusting the read timeout to 100ms
             Debug.Log("Serial port opened successfully.");
@@ -77,6 +80,7 @@ public class Playermovement2 : MonoBehaviour
 
                     buttonPressCount++;
                     Debug.Log(timeSinceLastPress);
+                    forward1 = true;
                 }
             }
             catch (TimeoutException)
@@ -128,6 +132,7 @@ public class Playermovement2 : MonoBehaviour
 
                     if (timeSinceLastPress >= minTimeout && timeSinceLastPress <= maxTimeout)
                     {
+                        
 
                             inTimer = true;
                             runBackwardsOnce = false;
@@ -148,12 +153,16 @@ public class Playermovement2 : MonoBehaviour
                                 hasLoggedAllowedPress = true;
                             }
 
-                            if (animatorToPause != null)
+                            if (animatorToPause != null && !RoutineRunning && forward1)
                         {
                                 // animatorToPause.ResetTrigger("falling"); // Reset the falling trigger if button is pressed within the time window
                                 animatorToPause.speed = 1f; // Resume animation if paused
                                 lastButtonPressTime = Time.time; // Update last button press time
-                                StartCoroutine(paus());                                   
+                    Debug.Log("IkGaVooruit");
+                    if (!RoutineRunning)
+                    {
+                        StartCoroutine(paus());
+                    }                               
                                 
                         }
 
@@ -236,13 +245,17 @@ public class Playermovement2 : MonoBehaviour
 
     IEnumerator paus()
     {
-        yield return new WaitForSeconds(2);
+        RoutineRunning = true;
+        yield return new WaitForSeconds(3);
 
         if (animatorToPause != null)
         {
+            forward1 = false;
             animatorToPause.speed = 0f;
             Debug.Log("Animatie gepauzeerd");
         }
+        // yield return new WaitForSeconds(3);
+        RoutineRunning = false;
     }
 
 
