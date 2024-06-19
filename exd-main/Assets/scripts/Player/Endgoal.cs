@@ -14,6 +14,7 @@ public class Endgoal : MonoBehaviour
         // Check if the collider belongs to the player
         if (other.CompareTag("Player"))
         {
+            playermovement.EndIsNow = true;
             // Set the AnimatieActiveer property to true
             Blaadje.AnimatieActiveer = true;
             Debug.Log("Player has entered the trigger area!");
