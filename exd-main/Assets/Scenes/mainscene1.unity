@@ -3676,6 +3676,7 @@ MonoBehaviour:
   maxTimeout: 10
   animatorToPause: {fileID: 1739504469}
   isFirstPress: 1
+  EndIsNow: 0
   audiosource: {fileID: 1739504472}
   Rythm: {fileID: 8300000, guid: 76c399c74da46454b8bcdd5740b4ca25, type: 3}
   RythmInstant: {fileID: 8300000, guid: 16eb0e19b3e196d4cbdd3d54b9418580, type: 3}
@@ -4996,6 +4997,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Blaadje: {fileID: 1043241286}
+  playermovement: {fileID: 1739504471}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

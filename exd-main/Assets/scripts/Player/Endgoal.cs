@@ -6,6 +6,7 @@ public class Endgoal : MonoBehaviour
 {
     // Reference to the Blaadje script or object
     public blaadje Blaadje;
+    public Playermovement2 playermovement;
 
     // This method is called when another collider enters the trigger
     private void OnTriggerEnter(Collider other)
