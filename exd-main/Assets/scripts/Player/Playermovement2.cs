@@ -6,10 +6,11 @@ using UnityEngine.Rendering.PostProcessing;
 
 public class Playermovement2 : MonoBehaviour
 {
-
     public PostProcessVolume postProcessVolume;
     public float effectDuration = 1f; // Aantal seconden dat het effect aan blijft
+    public float fadeDuration = 0.5f; // Aantal seconden voor de fade in en fade out
     private bool isEffectActive = false;
+    private bool isFading = false; // Flag to prevent multiple fade-outs
     private DepthOfField depthOfField;
     private MotionBlur motionBlur;
     private Vignette vignette;
@@ -70,7 +71,7 @@ public class Playermovement2 : MonoBehaviour
 
         try
         {
-            sp = new SerialPort("COM3", 9600);
+            sp = new SerialPort("COM7", 9600);
             sp.Open();
             sp.ReadTimeout = 100; // Adjusting the read timeout to 100ms
             Debug.Log("Serial port opened successfully.");
@@ -273,14 +274,16 @@ public class Playermovement2 : MonoBehaviour
 
         if (animatorToPause != null)
         {
-            forward1 = false;
-            animatorToPause.speed = 0f;
-            Debug.Log("Animatie gepauzeerd");
+            animatorToPause.speed = 0f; // Pause the animation after 3 seconds
+            if (animatorToPause.speed == 0f)
+            {
+                Debug.Log("Animation paused after 3 seconds");
+                forward1 = false;
+            }
         }
-        // yield return new WaitForSeconds(3);
+
         RoutineRunning = false;
     }
-
 
     IEnumerator PlayAudio()
     {
@@ -304,8 +307,10 @@ public class Playermovement2 : MonoBehaviour
 
     IEnumerator AdjustAnimationBackwards()
     {
-
-        if (!runBackwardsOnce){
+        if (runBackwardsOnce)
+        {
+            yield break; // Exit if already run backwards once
+        }
 
         if (animatorToPause != null)
         {
@@ -317,43 +322,77 @@ public class Playermovement2 : MonoBehaviour
             animationStartTime = normalizedTime;
 
             if (!isEffectActive)
-             {
-                 StartCoroutine(ToggleFallEffect());
-             }
+            {
+                StartCoroutine(ToggleFallEffect());
+            }
 
             yield return new WaitForSeconds(2); // Wait for 2 seconds
 
             isRewinding = false;
             animatorToPause.speed = 0f; // Pause at the rewinded point
-            if (animatorToPause.speed == 0f){
+            if (animatorToPause.speed == 0f)
+            {
                 Debug.Log("Animation paused");
                 animatorToPause.speed = 0f;
             }
             runBackwardsOnce = true;
         }
-        }
     }
 
     IEnumerator ToggleFallEffect()
     {
-        if (depthOfField == null || motionBlur == null || vignette == null || lensDistortion == null) yield break;
-
-        // Zet de effecten aan
-        depthOfField.active = true;
-        motionBlur.active = true;
-        vignette.active = true;
-        lensDistortion.active = true;
+        if (isFading || isEffectActive) yield break; // Exit if already fading or active
+        isFading = true;
         isEffectActive = true;
 
-        // Wacht voor de opgegeven duur
-        yield return new WaitForSeconds(2);
+        if (depthOfField == null || motionBlur == null || vignette == null || lensDistortion == null) yield break;
 
-        // Zet de effecten uit
+        // Zet de effecten aan met fade-in
+        float elapsedTime = 0f;
+        while (elapsedTime < fadeDuration)
+        {
+            float t = elapsedTime / fadeDuration;
+            depthOfField.active = true;
+            motionBlur.active = true;
+            vignette.active = true;
+            lensDistortion.active = true;
+
+            depthOfField.focusDistance.value = Mathf.Lerp(10f, 0.1f, t);
+            vignette.intensity.value = Mathf.Lerp(0f, 0.45f, t);
+            lensDistortion.intensity.value = Mathf.Lerp(0f, -30f, t);
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Zorg ervoor dat ze volledig aan zijn na de fade-in
+        depthOfField.focusDistance.value = 0.1f;
+        vignette.intensity.value = 0.45f;
+        lensDistortion.intensity.value = -30f;
+
+        // Wacht voor de opgegeven duur
+        yield return new WaitForSeconds(effectDuration);
+
+        // Zet de effecten uit met fade-out
+        elapsedTime = 0f;
+        while (elapsedTime < fadeDuration)
+        {
+            float t = elapsedTime / fadeDuration;
+            depthOfField.focusDistance.value = Mathf.Lerp(0.1f, 10f, t);
+            vignette.intensity.value = Mathf.Lerp(0.45f, 0f, t);
+            lensDistortion.intensity.value = Mathf.Lerp(-30f, 0f, t);
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Zorg ervoor dat ze volledig uit zijn na de fade-out
         depthOfField.active = false;
         motionBlur.active = false;
         vignette.active = false;
         lensDistortion.active = false;
         isEffectActive = false;
+        isFading = false;
     }
 
     bool IsAnimationReversing()
@@ -365,4 +404,3 @@ public class Playermovement2 : MonoBehaviour
         return false;
     }
 }
-
