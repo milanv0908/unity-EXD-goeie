@@ -93,11 +93,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Texture1:
-        m_Texture: {fileID: 2800000, guid: 9966f84e550342518100b3e9d3813bc8, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1f4ee9ebadb64209bd1c12af20285b15, type: 3}
         m_Scale: {x: 5, y: 5}
         m_Offset: {x: 0, y: 0}
     - _Texture2:
-        m_Texture: {fileID: 2800000, guid: 91dec5af9b6347a8b53f5da58e738a44, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1f4ee9ebadb64209bd1c12af20285b15, type: 3}
         m_Scale: {x: 7, y: 7}
         m_Offset: {x: 0, y: 0}
     - _Texture3:
@@ -116,11 +116,11 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _IntensityInput: 1.6
+    - _IntensityInput: 1
     - _IntensityOutput: 0.79
-    - _IntensityT1: 2
-    - _IntensityT2: 1.82
-    - _IntensityT3: -0.5
+    - _IntensityT1: 1.5
+    - _IntensityT2: 0.5
+    - _IntensityT3: -0.2
     - _IntensityTAll: 1.6
     - _Level0: 0
     - _Level1: 10
@@ -135,9 +135,9 @@ Material:
     - _SpeedX: 0
     - _SpeedY: 15
     - _SrcBlend: 1
-    - _TextureUv1: 12
-    - _TextureUv2: 7
-    - _TextureUv3: 1.83
+    - _TextureUv1: 1
+    - _TextureUv2: 1
+    - _TextureUv3: 1
     - _Tiling: 1
     - _UVSec: 0
     - _VectorX1: 0.2
@@ -148,7 +148,7 @@ Material:
     - _VectorY3: -1.2
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.49056602, g: 0.39141166, b: 0.25176218, a: 0.73333335}
+    - _Color: {r: 0.6037736, g: 0.5206683, b: 0.4009968, a: 0.73333335}
     - _Emission: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Level0Color: {r: 0.37, g: 0.78, b: 0.92, a: 1}
