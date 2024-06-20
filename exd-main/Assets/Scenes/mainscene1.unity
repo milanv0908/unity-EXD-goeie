@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4563462, g: 0.24432334, b: 0.15507236, a: 1}
+  m_IndirectSpecularColor: {r: 0.46406347, g: 0.24850497, b: 0.15766284, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -886,7 +886,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!82 &264496650
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2703,7 +2703,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: bf0fbcddf86a7ab429600b29148cf4dc, type: 3}
-  m_Color: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
+  m_Color: {r: 0.6037736, g: 0.3725169, b: 0.3725169, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

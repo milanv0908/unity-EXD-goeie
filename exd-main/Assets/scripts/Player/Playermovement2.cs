@@ -71,7 +71,7 @@ public class Playermovement2 : MonoBehaviour
 
         try
         {
-            sp = new SerialPort("COM3", 9600);
+            sp = new SerialPort("COM7", 9600);
             sp.Open();
             sp.ReadTimeout = 100; // Adjusting the read timeout to 100ms
             Debug.Log("Serial port opened successfully.");
