@@ -40,7 +40,7 @@ public class Playermovement2 : MonoBehaviour
     public AudioClip FallSound;
     public AudioClip snailSound;
 
-    private bool hasPlayedAudio = false;
+    public bool hasPlayedAudio = false;
     private bool hasPlayedAudio2 = false;
     private bool hasPlayedSnailAudio = false;
 
@@ -75,7 +75,7 @@ public class Playermovement2 : MonoBehaviour
 
         try
         {
-            sp = new SerialPort("COM7", 9600);
+            sp = new SerialPort("COM3", 9600);
             sp.Open();
             sp.ReadTimeout = 100; // Adjusting the read timeout to 100ms
             Debug.Log("Serial port opened successfully.");
@@ -112,6 +112,7 @@ public class Playermovement2 : MonoBehaviour
                             forward1 = true;
                             playFallAudio = false;
                             hasPlayedSnailAudio = false;
+                            
                         }
                     }
                 }
@@ -185,11 +186,11 @@ public class Playermovement2 : MonoBehaviour
 
                     if (!hasPlayedAudio)
                     {
-                        audiosource.Stop();
-                        audiosource.PlayOneShot(Rythm);
+                        // audiosource.Stop();
+                        // audiosource.PlayOneShot(Rythm);
                         hasPlayedAudio = true;
-                        StartCoroutine(PlayAudio());
                         Debug.Log("audioDoetTNuWel");
+                        StartCoroutine(PlayAudio());
                     }
 
                     if (!hasLoggedAllowedPress)
@@ -314,7 +315,9 @@ public class Playermovement2 : MonoBehaviour
     {
         if (inTimer)
         {
-            yield return new WaitForSeconds(9);
+            audiosource.PlayOneShot(Rythm);
+            Debug.Log("windaudio");
+            yield return new WaitForSeconds(8);
             hasPlayedAudio = false;
             Debug.Log("1e audio doet");
         }
