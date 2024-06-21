@@ -11,6 +11,7 @@ public class Playermovement2 : MonoBehaviour
     public float fadeDuration = 0.5f; // Aantal seconden voor de fade in en fade out
     private bool isEffectActive = false;
     private bool isFading = false; // Flag to prevent multiple fade-outs
+    private bool playFallAudio = false; // Flag to prevent multiple fade-outs
     private DepthOfField depthOfField;
     private MotionBlur motionBlur;
     private Vignette vignette;
@@ -36,6 +37,7 @@ public class Playermovement2 : MonoBehaviour
     public AudioSource audiosource;
     public AudioClip Rythm;
     public AudioClip RythmInstant;
+    public AudioClip FallSound;
 
     private bool hasPlayedAudio = false;
     private bool hasPlayedAudio2 = false;
@@ -104,6 +106,7 @@ public class Playermovement2 : MonoBehaviour
                         buttonPressCount++;
                         Debug.Log(timeSinceLastPress);
                         forward1 = true;
+                        playFallAudio = false;
                     }
                 }
                 catch (TimeoutException)
@@ -136,6 +139,7 @@ public class Playermovement2 : MonoBehaviour
                         hasLoggedFirstPress = true;
                         audiosource.PlayOneShot(RythmInstant);
                         audiosource.PlayOneShot(Rythm);
+                        StartCoroutine(paus());
                     }
 
                     StartCoroutine(First());
@@ -195,11 +199,13 @@ public class Playermovement2 : MonoBehaviour
                     if (buttonPressCount >= 2)
                     {
                         inTimer = false;
+                        
 
                         if (!hasPlayedAudio2)
                         {
                             audiosource.Stop();
                             audiosource.PlayOneShot(Rythm);
+                            // audiosource.PlayOneShot(FallSound);
                             hasPlayedAudio2 = true;
                             StartCoroutine(PlayAudio2());
                         }
@@ -270,7 +276,7 @@ public class Playermovement2 : MonoBehaviour
     IEnumerator paus()
     {
         RoutineRunning = true;
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(2);
 
         if (animatorToPause != null)
         {
@@ -305,6 +311,7 @@ public class Playermovement2 : MonoBehaviour
         }
     }
 
+
     IEnumerator AdjustAnimationBackwards()
     {
         if (runBackwardsOnce)
@@ -326,6 +333,11 @@ public class Playermovement2 : MonoBehaviour
                 StartCoroutine(ToggleFallEffect());
             }
 
+            if (!playFallAudio)
+            {
+                audiosource.PlayOneShot(FallSound);
+                playFallAudio = true;
+            }
             yield return new WaitForSeconds(2); // Wait for 2 seconds
 
             isRewinding = false;
@@ -356,6 +368,8 @@ public class Playermovement2 : MonoBehaviour
             motionBlur.active = true;
             vignette.active = true;
             lensDistortion.active = true;
+
+            
 
             depthOfField.focusDistance.value = Mathf.Lerp(10f, 0.1f, t);
             vignette.intensity.value = Mathf.Lerp(0f, 0.45f, t);

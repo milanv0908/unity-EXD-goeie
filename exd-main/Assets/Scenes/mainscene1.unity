@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4631728, g: 0.24817643, b: 0.15757418, a: 1}
+  m_IndirectSpecularColor: {r: 0.46406347, g: 0.24850497, b: 0.15766284, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -886,7 +886,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!82 &264496650
 AudioSource:
   m_ObjectHideFlags: 0
@@ -897,7 +897,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 473b774af661aa948921511b9cc12c72, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 435694cd9e845734d9aa6bd55a5972de, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.239
   m_Pitch: 1
@@ -4018,6 +4018,7 @@ MonoBehaviour:
   audiosource: {fileID: 1739504472}
   Rythm: {fileID: 8300000, guid: 76c399c74da46454b8bcdd5740b4ca25, type: 3}
   RythmInstant: {fileID: 8300000, guid: 16eb0e19b3e196d4cbdd3d54b9418580, type: 3}
+  FallSound: {fileID: 8300000, guid: 383c9fbbabda65c43967158d0287e20b, type: 3}
 --- !u!82 &1739504472
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4425,7 +4426,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!82 &1896977128
 AudioSource:
   m_ObjectHideFlags: 0
