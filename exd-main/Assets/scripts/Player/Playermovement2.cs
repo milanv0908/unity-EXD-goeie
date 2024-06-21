@@ -38,9 +38,11 @@ public class Playermovement2 : MonoBehaviour
     public AudioClip Rythm;
     public AudioClip RythmInstant;
     public AudioClip FallSound;
+    public AudioClip snailSound;
 
     private bool hasPlayedAudio = false;
     private bool hasPlayedAudio2 = false;
+    private bool hasPlayedSnailAudio = false;
 
     // Booleans to control logging
     private bool hasLoggedFirstPress = false;
@@ -103,10 +105,14 @@ public class Playermovement2 : MonoBehaviour
                             buttonPressCount = 0;
                         }
 
-                        buttonPressCount++;
-                        Debug.Log(timeSinceLastPress);
-                        forward1 = true;
-                        playFallAudio = false;
+                        if (timeSinceLastPress > 0.1)
+                        {
+                            buttonPressCount++;
+                            Debug.Log(timeSinceLastPress);
+                            forward1 = true;
+                            playFallAudio = false;
+                            hasPlayedSnailAudio = false;
+                        }
                     }
                 }
                 catch (TimeoutException)
@@ -132,12 +138,14 @@ public class Playermovement2 : MonoBehaviour
                     lastButtonPressTime = Time.time; // Update last button press time
                     hasPlayedAudio = false; // Reset the audio play flag on first press
                     hasPlayedAudio2 = false; // Reset the audio play flag on first press
+                    hasPlayedSnailAudio = false;
 
                     if (!hasLoggedFirstPress)
                     {
                         Debug.Log("First button press detected.");
                         hasLoggedFirstPress = true;
                         audiosource.PlayOneShot(RythmInstant);
+                        audiosource.PlayOneShot(snailSound);
                         audiosource.PlayOneShot(Rythm);
                         StartCoroutine(paus());
                     }
@@ -165,12 +173,23 @@ public class Playermovement2 : MonoBehaviour
                     runBackwardsOnce = false;
                     // animatorToPause.speed = 1f; // Resume animation if paused
 
+
+
+                    if(!hasPlayedSnailAudio){
+                        audiosource.PlayOneShot(snailSound);
+                        Debug.Log("ouwmoeder");
+                        hasPlayedSnailAudio = true;
+                        StartCoroutine(snailAudio());
+                    }
+                    
+
                     if (!hasPlayedAudio)
                     {
                         audiosource.Stop();
                         audiosource.PlayOneShot(Rythm);
                         hasPlayedAudio = true;
                         StartCoroutine(PlayAudio());
+                        Debug.Log("audioDoetTNuWel");
                     }
 
                     if (!hasLoggedAllowedPress)
@@ -295,7 +314,7 @@ public class Playermovement2 : MonoBehaviour
     {
         if (inTimer)
         {
-            yield return new WaitForSeconds(7);
+            yield return new WaitForSeconds(9);
             hasPlayedAudio = false;
             Debug.Log("1e audio doet");
         }
@@ -305,9 +324,19 @@ public class Playermovement2 : MonoBehaviour
     {
         if (!inTimer)
         {
-            yield return new WaitForSeconds(7);
+            yield return new WaitForSeconds(9);
             hasPlayedAudio2 = false;
             Debug.Log("2e audio doet");
+        }
+    }
+
+        IEnumerator snailAudio()
+    {
+        if (inTimer)
+        {
+            yield return new WaitForSeconds(1);
+            // hasPlayedSnailAudio = false;
+            Debug.Log("inshallah");
         }
     }
 
@@ -321,7 +350,7 @@ public class Playermovement2 : MonoBehaviour
 
         if (animatorToPause != null)
         {
-            float normalizedTime = Mathf.Clamp01(animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime - 0.0005f); // Adjusted step back
+            float normalizedTime = Mathf.Clamp01(animatorToPause.GetCurrentAnimatorStateInfo(0).normalizedTime - 0.00009f); // Adjusted step back
             animatorToPause.Play(animatorToPause.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, normalizedTime);
 
             rewindStartTime = Time.time; // Record the start time of the rewind
